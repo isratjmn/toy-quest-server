@@ -22,7 +22,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
 	try {
-		await client.connect();
+		client.connect();
 
 		const blogCollection = client.db("toyQuest").collection("blogs");
 		const addToyCollection = client.db("toyQuest").collection("addtoy");
@@ -33,7 +33,7 @@ async function run() {
 			const result = await cursor.toArray();
 			res.send(result);
 		});
-		
+
 		// Insert
 		app.post("/addtoy", async (req, res) => {
 			const body = req.body;
@@ -107,29 +107,6 @@ async function run() {
 			const result = await addToyCollection.find().limit(20).toArray();
 			res.send(result);
 		});
-
-		/* app.get("/mytoys/:email/", async (req, res) => {
-			const query = { sellerEmail: req.params.email };
-			const sort = req.query.sort;
-
-			const options = {
-				// Decendiing Sort
-				sort: { toyPrice: sort === "asc" ? 1 : -1 },
-				collation: { locale: "en_US", numericOrdering: true },
-			};
-			try {
-				const result = await addToyCollection
-					.find(query)
-					.sort(options.sort)
-					.collation(options.collation)
-					.toArray();
-
-				res.send(result);
-			} catch (error) {
-				console.error(error);
-				res.status(500).send("Internal Server Error");
-			}
-		}); */
 
 		// MyToys
 		app.get("/mytoys/:email", async (req, res) => {
