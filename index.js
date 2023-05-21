@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
@@ -46,7 +46,25 @@ async function run() {
 					message: "can not insert try again leter",
 					status: false,
 				});
-			}  */
+			} */
+		});
+		app.get("/updatedtoy/:id", async (req, res) => {
+			const updatedAddToy = req.body;
+			console.log(updatedAddToy);
+		});
+
+		app.put("/updatedtoy/:id", async (req, res) => {
+			const id = req.params.id;
+			const filter = { _id: new ObjectId(id) };
+
+			const updatedToy = req.body;
+			const toy = {
+				$set: {
+					...updatedToy,
+				},
+			};
+			const result = await addToyCollection.updateOne(filter, toy)
+			res.send(result);
 		});
 
 		app.get("/allcategory/:category", async (req, res) => {
@@ -56,13 +74,6 @@ async function run() {
 				.toArray();
 			res.send(toys);
 		});
-
-		/* app.get("/viewdetails/:id", async (req, res) => {
-			const id = req.params.id;
-			const query = { _id: new ObjectId(id) };
-			const result = await addToyCollection.findOne(query, options);
-			res.send(result);s
-		}) */
 
 		app.get("/alltoys", async (req, res) => {
 			const result = await addToyCollection.find({}).toArray();
