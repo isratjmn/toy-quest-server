@@ -4,7 +4,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 7000;
 
 app.use(cors());
 app.use(express.json());
@@ -64,23 +64,31 @@ async function run() {
 			res.send(result);
 		});
 
-		// Update
-		app.put("/updatedtoy/:id", async (req, res) => {
+		app.get("/alltoys/:id", async (req, res) => {
 			const id = req.params.id;
-			const body = req.body;
-			console.log(id, body);
-			const filter = { _id: new ObjectId(id) };
-
-			const toy = {
-				$set: {
-					toyPrice: body.toyPrice,
-					quantity: body.quantity,
-					description: body.description,
-				},
-			};
-			const result = await addToyCollection.updateOne(filter, toy);
+			const query = { _id: new ObjectId(id) };
+			const result = await addToyCollection.findOne(query);
 			res.send(result);
 		});
+
+		// Update
+		app.put("/alltoys/:id", async (req, res) => {
+			const id = req.params.id;
+			const filter = { _id: new ObjectId(id) };
+			const options = { upsert: true };
+			const updateToy = req.body;
+
+			const toyy = {
+				$set: {
+					toyPrice: updateToy.toyPrice,
+					quantity: updateToy.quantity,
+					description: updateToy.description,
+				},
+			};
+			const result = await addToyCollection.updateOne(filter, toyy, options);
+			res.send(result);
+		});
+
 
 		// Delete
 		app.delete("/toydelete/:id", async (req, res) => {
@@ -102,8 +110,6 @@ async function run() {
 		// AllToys
 		app.get("/alltoys", async (req, res) => {
 			const search = req.query.search;
-			console.log(search);
-			// const query = { toyName: { $regex: search, $options: "i" } };
 			const result = await addToyCollection.find().limit(20).toArray();
 			res.send(result);
 		});
